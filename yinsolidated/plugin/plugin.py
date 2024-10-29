@@ -71,8 +71,10 @@ class ConsolidatedModelPlugin(plugin.PyangPlugin):
 
         if fmt == "xml":
             nsmap = consolidated_model.nsmap.copy()
-            for m,p in unique_prefixes(ctx).items():
+            for m, p in unique_prefixes(ctx).items():
                 nsmap[p] = m.search_one("namespace").arg
+                mapping = etree.Element("mapping", prefix=p, module=m.i_modulename)
+                consolidated_model.append(mapping)
             model = etree.Element(consolidated_model.tag, nsmap=nsmap, attrib=consolidated_model.attrib)
             model.extend(consolidated_model)
 
