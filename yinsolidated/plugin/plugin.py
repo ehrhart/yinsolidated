@@ -69,19 +69,20 @@ class ConsolidatedModelPlugin(plugin.PyangPlugin):
         fmt = ctx.opts.yinsoldated_output_format
         consolidated_model = _build_consolidated_model(modules, fmt)
 
-        nsmap = consolidated_model.nsmap.copy()
-        for m,p in unique_prefixes(ctx).items():
-            nsmap[p] = m.search_one("namespace").arg
-        model = etree.Element(consolidated_model.tag, nsmap=nsmap, attrib=consolidated_model.attrib)
-        model.extend(consolidated_model)
+        if fmt == "xml":
+            nsmap = consolidated_model.nsmap.copy()
+            for m,p in unique_prefixes(ctx).items():
+                nsmap[p] = m.search_one("namespace").arg
+            model = etree.Element(consolidated_model.tag, nsmap=nsmap, attrib=consolidated_model.attrib)
+            model.extend(consolidated_model)
 
-        document = (
-            etree.tostring(model, xml_declaration=True, pretty_print=True).decode(
-                "UTF-8"
+            document = (
+                etree.tostring(model, xml_declaration=True, pretty_print=True).decode(
+                    "UTF-8"
+                )
             )
-            if fmt == "xml"
-            else json.dumps(model, indent=2)
-        )
+        else:
+            document = json.dumps(consolidated_model, indent=2)
 
         output.write(document)
 
