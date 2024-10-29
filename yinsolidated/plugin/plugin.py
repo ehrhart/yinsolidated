@@ -18,6 +18,7 @@ import optparse
 
 from lxml import etree
 from pyang import __version__ as pyang_version, plugin, statements, syntax, yin_parser
+from pyang.util import unique_prefixes
 
 from yinsolidated import _common
 
@@ -66,7 +67,13 @@ class ConsolidatedModelPlugin(plugin.PyangPlugin):
     def emit(self, ctx, modules, output):
         """Override."""
         fmt = ctx.opts.yinsoldated_output_format
-        model = _build_consolidated_model(modules, fmt)
+        consolidated_model = _build_consolidated_model(modules, fmt)
+
+        nsmap = consolidated_model.nsmap.copy()
+        for m,p in unique_prefixes(ctx).items():
+            nsmap[p] = m.search_one("namespace").arg
+        model = etree.Element(consolidated_model.tag, nsmap=nsmap, attrib=consolidated_model.attrib)
+        model.extend(consolidated_model)
 
         document = (
             etree.tostring(model, xml_declaration=True, pretty_print=True).decode(
