@@ -112,12 +112,11 @@ def _make_builtin_yin_element(statement, parent_elem, fmt):
 
     module_name = None
     module_prefix = None
-    nsmap = {}
+    nsmap = {"yin": yin_parser.yin_namespace}
 
     if statement.keyword == "module":
         module_name = statement.i_modulename
         module_prefix = statement.i_prefix
-        nsmap["yin"] = yin_parser.yin_namespace
         nsmap.update(_get_module_nsmap(statement))
     elif _is_augmenting_another_module(statement) or statement.keyword == "identity":
         module_name = statement.i_module.i_modulename
