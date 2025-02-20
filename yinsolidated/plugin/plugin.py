@@ -217,8 +217,9 @@ def _get_module_nsmap(module_statement):
         imported_module_statement = statements.modulename_to_module(
             module_statement, module_name, revision
         )
-        namespace = imported_module_statement.search_one("namespace").arg
-        nsmap[prefix] = namespace
+        ns_element = imported_module_statement.search_one("namespace")
+        if ns_element is not None:
+            nsmap[prefix] = ns_element.arg
 
     return nsmap
 
