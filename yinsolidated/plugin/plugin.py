@@ -70,11 +70,30 @@ class ConsolidatedModelPlugin(plugin.PyangPlugin):
         consolidated_model = _build_consolidated_model(modules, fmt)
 
         if fmt == "xml":
+            # Create inverse mapping from namespace to prefixes
             nsmap = consolidated_model.nsmap.copy()
+            namespace_to_prefixes = {}
+            for prefix, namespace in nsmap.items():
+                if namespace not in namespace_to_prefixes:
+                    namespace_to_prefixes[namespace] = []
+                namespace_to_prefixes[namespace].append(prefix)
+
+            # Process unique prefixes and add mappings
             for m, p in unique_prefixes(ctx).items():
-                nsmap[p] = m.search_one("namespace").arg
+                namespace = m.search_one("namespace").arg
+                nsmap[p] = namespace
+
+                # Also add this namespace to any existing prefixes that point to the same namespace
+                for existing_prefix, existing_namespace in list(nsmap.items()):
+                    if existing_namespace == namespace and existing_prefix != p:
+                        mapping = etree.Element("mapping", prefix=existing_prefix, module=m.i_modulename)
+                        consolidated_model.append(mapping)
+
+                # Add the main mapping
                 mapping = etree.Element("mapping", prefix=p, module=m.i_modulename)
                 consolidated_model.append(mapping)
+
+            # Create the final model
             model = etree.Element(consolidated_model.tag, nsmap=nsmap, attrib=consolidated_model.attrib)
             model.extend(consolidated_model)
 
