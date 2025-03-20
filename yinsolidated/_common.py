@@ -5,9 +5,9 @@
 YIN_NS = "urn:ietf:params:xml:ns:yang:yin:1"
 
 
-# [RFC 6020 Section 3]
+# [RFC 7950 Section 3]
 
-DATA_NODE_KEYWORDS = ["container", "leaf", "leaf-list", "list", "anyxml"]
+DATA_NODE_KEYWORDS = ["container", "leaf", "leaf-list", "list", "anydata", "anyxml"]
 
 DATA_DEFINITION_KEYWORDS = DATA_NODE_KEYWORDS + ["choice", "case", "augment", "uses"]
 
